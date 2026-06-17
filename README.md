@@ -13,6 +13,13 @@
 Bu laboratuvar çalışmasında, AWS bulut altyapısı üzerinde kasıtlı olarak kritik bir ağ zafiyeti oluşturulmuş, **Prowler CLI** aracı kullanılarak bu zafiyet tespit edilmiş ve ardından **Remediation (İyileştirme)** adımları uygulanarak atak yüzeyi tamamen kapatılmıştır.
 
 ---
+## Bu Çalışmayı Neden Yaptık? (The "Why")
+AWS EC2 sunucuları, altyapının doğrudan işletim sistemi seviyesinde çalışan en kritik hesaplama üniteleridir. Bu sunucuların dış dünya ile olan trafiğini denetleyen katman ise **Security Groups** (Sanal Güvenlik Duvarları) mekanizmasıdır. Bu çalışmayı, sunucunun yönetim kapısı olan **Port 22 (SSH)** erişimini kontrol altına almak ve siber saldırı yüzeyini (Attack Surface) daraltarak yalnızca yetkilendirilmiş kaynakların sunucuya komut gönderebilmesini sağlamak amacıyla yaptık.
+
+## Yapmazsak Ne Olurdu? (Siber Zafiyet Senaryoları)
+Eğer Port 22 (SSH) kuralı internete tamamen açık (`0.0.0.0/0`) bırakılsaydı karşılaşacağımız siber tehdit senaryoları şunlardı:
+* **Otomatize Brute-Force:** İnternetteki botlar ve Shodan gibi ağ tarayıcıları sunucunun açık SSH portunu saniyeler içinde keşfeder ve işletim sistemine sızmak için aralıksız kaba kuvvet (parola/anahtar deneme) saldırıları başlatırdı.
+* **Sunucu İstilası ve Lateral Movement:** Bir saldırgan SSH üzerinden sunucuya sızdığında işletim sisteminde tam yetki (Root) elde eder, sunucu kaynaklarını botnet veya kripto madenciliği (Crypto-jacking) için sömürür ve sunucuya bağlı olan IAM rollerini kullanarak VPC içerisindeki diğer AWS servislerine sıçrayabilirdi.
 
 ### ⚠️ 1. Senaryo ve Siber Zafiyetin Oluşturulması
 Europe (Frankfurt) bölgesinde canlı bir EC2 sanal sunucusu ayağa kaldırılmıştır. Kurulum esnasında Güvenlik Grubu (Security Group) gelen kuralları (Inbound Rules), yönetim portu olan **Port 22 (SSH)** için tüm internete (`0.0.0.0/0`) açık hale getirilmiştir. SSH portunun dış dünyaya tamamen açık bırakılması, kaba kuvvet (Brute-Force) saldırılarına ve siber korsanların sunucuya sızma girişimlerine doğrudan davetiye çıkarmaktadır.
@@ -91,6 +98,14 @@ Lab çalışması tamamlandıktan sonra, gereksiz maliyetlerin oluşmasını ön
 In this lab study, a critical network vulnerability was intentionally created on AWS cloud infrastructure, detected using the **Prowler CLI** security tool, and then mitigated by applying **Remediation** steps to completely close the attack surface.
 
 ---
+
+## Bu Çalışmayı Neden Yaptık? (The "Why")
+AWS EC2 instances are the most critical computing units running directly at the operating system level. The layer controlling the traffic between these instances and the outside world is the **Security Groups** mechanism. We performed this hardening to take control of **Port 22 (SSH)**, which is the administrative gateway of the server, and to minimize the attack surface, ensuring only authorized sources can send commands to the instance.
+
+## Yapmazsak Ne Olurdu? (Siber Zafiyet Senaryoları / What If We Didn't?)
+If the Port 22 (SSH) rule was left completely open to the internet (`0.0.0.0/0`), we would face the following cyber threat scenarios:
+* **Automated Brute-Force:** Internet bots and network scanners like Shodan would discover the open SSH port within seconds, launching relentless brute-force attacks to breach the operating system.
+* **Instance Compromise & Lateral Movement:** Once an attacker gained access via SSH, they would obtain root privileges on the OS, exploit instance resources for botnets or crypto-jacking, and potentially leverage attached IAM roles to move laterally into other AWS services within the VPC.
 
 ### ⚠️ 1. Scenario & Cyber Vulnerability Creation
 A live EC2 virtual server was deployed in the Europe (Frankfurt) region. During configuration, the Inbound Rules of the Security Group were set to allow management traffic on **Port 22 (SSH)** from the entire internet (`0.0.0.0/0`). Leaving the SSH port fully open to the outside world directly invites brute-force attacks and unauthorized server intrusion attempts by malicious actors.
